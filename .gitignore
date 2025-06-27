@@ -1,0 +1,8 @@
+main/credentials.h
+
+/build
+/.vscode
+/.devcontainer
+/.env
+/dependencies.lock
+/sdkconfig*
