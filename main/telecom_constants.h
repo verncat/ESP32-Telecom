@@ -14,3 +14,5 @@
 
 #define MQTT_OPEN_STATE_TOPIC "/topic/telecom/open_state"
 #define MQTT_DIAL_VALUE_TOPIC "/topic/telecom/dial_value"
+#define MQTT_DIAL_RAW_VALUE_TOPIC "/topic/telecom/dial_raw_value"
+#define MQTT_UPTIME_TOPIC "/topic/telecom/uptime"

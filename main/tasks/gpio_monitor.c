@@ -1,6 +1,7 @@
 
 #include "gpio_monitor.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
 #include "wifi.h"
@@ -36,10 +37,14 @@ void adc_init_setup()
 /* Task to monitor ADC value and publish via MQTT when value exceeds a threshold */
 void gpio_monitor_task(void *pvParameters)
 {
-
-    // Configure ADC1 for channel 6
+    // Configure ADC 
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(MONITOR_ADC_CHANNEL, ADC_ATTEN_DB_12);
+
+    char uptime_payload[32];
+    snprintf(uptime_payload, sizeof(uptime_payload), "%llu", esp_timer_get_time());
+    int msg_id = esp_mqtt_client_publish(global_mqtt_client, MQTT_UPTIME_TOPIC, uptime_payload, 0, 0, 0);
+    ESP_LOGI(TAG_MONITOR_GPIO, "Published MQTT message to " MQTT_UPTIME_TOPIC", msg_id=%d", msg_id);
 
     while (1) {
         EventGroupHandle_t mqtt_events = get_mqtt_event_group();
@@ -53,15 +58,20 @@ void gpio_monitor_task(void *pvParameters)
 
         int adc_val = adc1_get_raw(MONITOR_ADC_CHANNEL);
         ESP_LOGI(TAG_MONITOR_GPIO, "ADC reading: %d", adc_val);
+
         if (bits & MQTT_CONNECTED_BIT) {
             char payload[32];
             snprintf(payload, sizeof(payload), "%d", adc_val);
+
+            int msg_id = esp_mqtt_client_publish(global_mqtt_client, MQTT_DIAL_RAW_VALUE_TOPIC, payload, 0, 1, 0);
+            ESP_LOGI(TAG_MONITOR_GPIO, "Published MQTT message to " MQTT_DIAL_RAW_VALUE_TOPIC", msg_id=%d", msg_id);
 
             if (adc_val > MONITOR_THRESHOLD && global_mqtt_client != NULL) {
                 int msg_id = esp_mqtt_client_publish(global_mqtt_client, MQTT_DIAL_VALUE_TOPIC, payload, 0, 1, 0);
                 ESP_LOGI(TAG_MONITOR_GPIO, "Published MQTT message to " MQTT_DIAL_VALUE_TOPIC", msg_id=%d", msg_id);
             }
         }
+
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
