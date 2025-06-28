@@ -36,7 +36,6 @@ void adc_init_setup()
 /* Task to monitor ADC value and publish via MQTT when value exceeds a threshold */
 void gpio_monitor_task(void *pvParameters)
 {
-    int threshold = 2000; // set your desired threshold here
 
     // Configure ADC1 for channel 6
     adc1_config_width(ADC_WIDTH_BIT_12);
@@ -54,19 +53,15 @@ void gpio_monitor_task(void *pvParameters)
 
         int adc_val = adc1_get_raw(MONITOR_ADC_CHANNEL);
         ESP_LOGI(TAG_MONITOR_GPIO, "ADC reading: %d", adc_val);
-        if (adc_val > threshold && global_mqtt_client != NULL) {
+        if (bits & MQTT_CONNECTED_BIT) {
             char payload[32];
             snprintf(payload, sizeof(payload), "%d", adc_val);
 
-
-            if (bits & MQTT_CONNECTED_BIT) {
+            if (adc_val > MONITOR_THRESHOLD && global_mqtt_client != NULL) {
                 int msg_id = esp_mqtt_client_publish(global_mqtt_client, MQTT_DIAL_VALUE_TOPIC, payload, 0, 1, 0);
                 ESP_LOGI(TAG_MONITOR_GPIO, "Published MQTT message to " MQTT_DIAL_VALUE_TOPIC", msg_id=%d", msg_id);
-                continue;
             }
-
         }
-
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
