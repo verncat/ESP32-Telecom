@@ -12,9 +12,9 @@
 #define MONITOR_THRESHOLD 500
 
 
-#define MQTT_OPEN_STATE_TOPIC "/topic/telecom/open_state"
-#define MQTT_DIAL_VALUE_TOPIC "/topic/telecom/dial_value"
-#define MQTT_DIAL_RAW_VALUE_TOPIC "/topic/telecom/dial_raw_value"
-#define MQTT_UPTIME_TOPIC "/topic/telecom/uptime"
+#define MQTT_OPEN_STATE_TOPIC "/topic/intercom/open_state"
+#define MQTT_DIAL_VALUE_TOPIC "/topic/intercom/dial_value"
+#define MQTT_DIAL_RAW_VALUE_TOPIC "/topic/intercom/dial_raw_value"
+#define MQTT_UPTIME_TOPIC "/topic/intercom/uptime"
 
-#define OTA_FIRMWARE_RECV_TIMEOUT 10000 // 10 seconds
+#define OTA_FIRMWARE_RECV_TIMEOUT 10000

@@ -3,10 +3,10 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "esp_task.h"
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "color.h"
 
-const char *TAG_RGB = "telecom_state";
+const char *TAG_RGB = "intercom_state";
 
 void rgb_state_init() {
 // Configure RGB pins for PWM
@@ -67,15 +67,15 @@ void rgb_display(int8_t r, int8_t g, int8_t b) {
     ledc_update_duty(LEDC_HIGH_SPEED_MODE, RGB_LEDC_CHANNEL_2);
 }
 
-int work_status = TELECOM_STATE_IDLE;
+int work_status = ENUM_INTERCOM_STATE_IDLE;
 
-void set_telecom_state(int state) {
-    if (state <= TELECOM_STATE_BEGIN || state >= TELECOM_STATE_END) {
-        ESP_LOGE(TAG_RGB, "Invalid telecom state: %d", state);
+void set_intercom_state(int state) {
+    if (state <= ENUM_INTERCOM_STATE_BEGIN || state >= ENUM_INTERCOM_STATE_END) {
+        ESP_LOGE(TAG_RGB, "Invalid intercom state: %d", state);
         return;
     }
     work_status = state;
-    ESP_LOGI(TAG_RGB, "Telecom state changed to: %d", work_status);
+    ESP_LOGI(TAG_RGB, "Intercom state changed to: %d", work_status);
 }
 
 void update_rgb_state_task(void *pvParameters) {
@@ -91,13 +91,13 @@ void update_rgb_state_task(void *pvParameters) {
             blink_state = !blink_state;
         }
         
-        // Update RGB based on current telecom state
+        // Update RGB based on current intercom state
         switch (work_status) {
-            case TELECOM_STATE_IDLE:
+            case ENUM_INTERCOM_STATE_IDLE:
                 rgb_display(RGB_STATUS_IDLE);
                 break;
                 
-            case TELECOM_STATE_WIFI_CONNECTING:
+            case ENUM_INTERCOM_STATE_WIFI_CONNECTING:
                 // Blink light blue when WiFi connecting
                 if (blink_state) {
                     rgb_display(RGB_WIFI_CONNECTING);
@@ -106,11 +106,11 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_WIFI_CONNECTED:
+            case ENUM_INTERCOM_STATE_WIFI_CONNECTED:
                 rgb_display(RGB_WIFI_CONNECTED);
                 break;
                 
-            case TELECOM_STATE_WIFI_DISCONNECTED:
+            case ENUM_INTERCOM_STATE_WIFI_DISCONNECTED:
                 // Blink orange when WiFi disconnected
                 if (blink_state) {
                     rgb_display(RGB_WIFI_DISCONNECTED);
@@ -119,7 +119,7 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_MQTT_CONNECTING:
+            case ENUM_INTERCOM_STATE_MQTT_CONNECTING:
                 // Blink purple when MQTT connecting
                 if (blink_state) {
                     rgb_display(RGB_MQTT_CONNECTING);
@@ -128,11 +128,11 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_MQTT_CONNECTED:
+            case ENUM_INTERCOM_STATE_MQTT_CONNECTED:
                 rgb_display(RGB_MQTT_CONNECTED);
                 break;
                 
-            case TELECOM_STATE_MQTT_DISCONNECTED:
+            case ENUM_INTERCOM_STATE_MQTT_DISCONNECTED:
                 // Blink yellow when MQTT disconnected
                 if (blink_state) {
                     rgb_display(RGB_MQTT_DISCONNECTED);
@@ -141,7 +141,7 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_MQTT_SENDING:
+            case ENUM_INTERCOM_STATE_MQTT_SENDING:
                 // Blink magenta when sending MQTT
                 if (blink_state) {
                     rgb_display(RGB_MQTT_SENDING);
@@ -150,7 +150,7 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_MQTT_RECEIVING:
+            case ENUM_INTERCOM_STATE_MQTT_RECEIVING:
                 // Blink cyan when receiving MQTT
                 if (blink_state) {
                     rgb_display(RGB_MQTT_RECEIVING);
@@ -159,7 +159,7 @@ void update_rgb_state_task(void *pvParameters) {
                 }
                 break;
                 
-            case TELECOM_STATE_OTA_UPDATING:
+            case ENUM_INTERCOM_STATE_OTA_UPDATING:
                 // Blink orange when OTA updating
                 if (blink_state) {
                     rgb_display(RGB_OTA_UPDATING);
@@ -167,7 +167,7 @@ void update_rgb_state_task(void *pvParameters) {
                     rgb_display(RGB_STATUS_IDLE);
                 }
                 break;
-            case TELECOM_STATE_OTA_SUCCESS:
+            case ENUM_INTERCOM_STATE_OTA_SUCCESS:
                 // Blink green when OTA successful
                 if (blink_state) {
                     rgb_display(RGB_OTA_SUCCESS);
@@ -176,7 +176,7 @@ void update_rgb_state_task(void *pvParameters) {
                 }
 
                 break;
-            case TELECOM_STATE_OTA_FAILURE:
+            case ENUM_INTERCOM_STATE_OTA_FAILURE:
                 // Fast blink red when OTA failed
                 if (blink_counter % 2 == 0) {
                     rgb_display(RGB_OTA_FAILURE);

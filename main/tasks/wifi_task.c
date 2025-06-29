@@ -1,30 +1,30 @@
 #include "wifi_task.h"
 #include "color.h"
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "credentials.h"
 #include "rgb_state_task.h"
 
 #include "esp_wifi.h"
 #include "esp_log.h"
 
-const char *TAG_WIFI = "telecom_wifi";
+const char *TAG_WIFI = "intercom_wifi";
 
 void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data) {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
-        set_telecom_state(TELECOM_STATE_WIFI_CONNECTING);
+        set_intercom_state(ENUM_INTERCOM_STATE_WIFI_CONNECTING);
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGI(TAG_WIFI, "Disconnected. Trying to reconnect...");
-        set_telecom_state(TELECOM_STATE_WIFI_DISCONNECTED);
+        set_intercom_state(ENUM_INTERCOM_STATE_WIFI_DISCONNECTED);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay before reconnecting
-        set_telecom_state(TELECOM_STATE_WIFI_CONNECTING);
+        set_intercom_state(ENUM_INTERCOM_STATE_WIFI_CONNECTING);
         esp_wifi_connect();
         xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG_WIFI, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        set_telecom_state(TELECOM_STATE_WIFI_CONNECTED);
+        set_intercom_state(ENUM_INTERCOM_STATE_WIFI_CONNECTED);
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }

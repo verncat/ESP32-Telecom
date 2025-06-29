@@ -6,10 +6,10 @@
 #include "driver/adc.h"
 #include "wifi_task.h"
 #include "mqtt_task.h"
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "credentials.h"
 
-const char* TAG_MONITOR_GPIO = "telecom_gpio_monitor";
+const char* TAG_MONITOR_GPIO = "intercom_gpio_monitor";
 
 
 /* Initialize GPIO2 as output */

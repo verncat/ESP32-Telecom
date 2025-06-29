@@ -3,7 +3,7 @@
 #include "esp_log.h"
 #include "protocol_examples_common.h"
 
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "credentials.h"
 #include "color.h"
 
@@ -14,7 +14,7 @@
 #include "tasks/ota_task.h"
 
 
-const char *TAG = "telecom_app_main";
+const char *TAG = "intercom_app_main";
 
 void app_main(void)
 {
@@ -35,7 +35,7 @@ void app_main(void)
     gpio_init_setup();
     mqtt5_init();
 
-    set_telecom_state(TELECOM_STATE_IDLE);
+    set_intercom_state(ENUM_INTERCOM_STATE_IDLE);
 
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);

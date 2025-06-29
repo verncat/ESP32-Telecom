@@ -1,6 +1,6 @@
 #include "ota_task.h"
 #include "rgb_state_task.h"
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "credentials.h"
 
 #include "esp_log.h"
@@ -9,7 +9,7 @@
 #include "esp_http_client.h"
 
 
-const char *TAG_OTA = "telecom_ota";
+const char *TAG_OTA = "intercom_ota";
 
 static bool ota_post_diagnostic() {
     // Todo: write diagnostic checks
@@ -129,13 +129,13 @@ static void ota_via_http_client_task(void *pvParameter)
                     }
 #endif
 
-                    set_telecom_state(TELECOM_STATE_OTA_UPDATING);
+                    set_intercom_state(ENUM_INTERCOM_STATE_OTA_UPDATING);
 
                     image_header_was_checked = true;
 
                     err = esp_ota_begin(update_partition, OTA_WITH_SEQUENTIAL_WRITES, &update_handle);
                     if (err != ESP_OK) {
-                        set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+                        set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
                         ESP_LOGE(TAG_OTA, "esp_ota_begin failed (%s)", esp_err_to_name(err));
                         http_cleanup(client);
                         esp_ota_abort(update_handle);
@@ -151,7 +151,7 @@ static void ota_via_http_client_task(void *pvParameter)
             }
             err = esp_ota_write( update_handle, (const void *)ota_write_data, data_read);
             if (err != ESP_OK) {
-                set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+                set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
                 http_cleanup(client);
                 esp_ota_abort(update_handle);
                 task_fatal_error();
@@ -176,7 +176,7 @@ static void ota_via_http_client_task(void *pvParameter)
     ESP_LOGI(TAG_OTA, "Total Write binary data length: %d", binary_file_length);
     if (esp_http_client_is_complete_data_received(client) != true) {
         ESP_LOGE(TAG_OTA, "Error in receiving complete file");
-        set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+        set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
         http_cleanup(client);
         esp_ota_abort(update_handle);
         task_fatal_error();
@@ -189,7 +189,7 @@ static void ota_via_http_client_task(void *pvParameter)
         } else {
             ESP_LOGE(TAG_OTA, "esp_ota_end failed (%s)!", esp_err_to_name(err));
         }
-        set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+        set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
         http_cleanup(client);
         task_fatal_error();
     }
@@ -197,7 +197,7 @@ static void ota_via_http_client_task(void *pvParameter)
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
         ESP_LOGE(TAG_OTA, "esp_ota_set_boot_partition failed (%s)!", esp_err_to_name(err));
-        set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+        set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
         http_cleanup(client);
         return;
     }
@@ -218,12 +218,12 @@ void ota_check(){
             bool diagnostic_is_ok = ota_post_diagnostic();
             if (diagnostic_is_ok) {
                 ESP_LOGI(TAG_OTA, "Diagnostics completed successfully! Continuing execution ...");
-                set_telecom_state(TELECOM_STATE_OTA_SUCCESS);
+                set_intercom_state(ENUM_INTERCOM_STATE_OTA_SUCCESS);
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
                 esp_ota_mark_app_valid_cancel_rollback();
             } else {
                 ESP_LOGE(TAG_OTA, "Diagnostics failed! Start rollback to the previous version ...");
-                set_telecom_state(TELECOM_STATE_OTA_FAILURE);
+                set_intercom_state(ENUM_INTERCOM_STATE_OTA_FAILURE);
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
                 esp_ota_mark_app_invalid_rollback_and_reboot();
             }

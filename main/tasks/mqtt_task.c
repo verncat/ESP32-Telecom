@@ -1,12 +1,12 @@
 #include "mqtt_task.h"
 #include "color.h"
-#include "telecom_constants.h"
+#include "intercom_constants.h"
 #include "credentials.h"
 #include "rgb_state_task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
 
-const char *TAG_MQTT = "telecom_mqtt";
+const char *TAG_MQTT = "intercom_mqtt";
 
 void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -71,16 +71,16 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_CONNECTED");
-        set_telecom_state(TELECOM_STATE_MQTT_CONNECTED);
+        set_intercom_state(ENUM_INTERCOM_STATE_MQTT_CONNECTED);
         xEventGroupSetBits(mqtt_event_group, MQTT_CONNECTED_BIT);
         
-        // Subscribe to telecom state topic
+        // Subscribe to intercom state topic
         msg_id = esp_mqtt_client_subscribe(client, MQTT_OPEN_STATE_TOPIC, 1);
         ESP_LOGI(TAG_MQTT, "Subscribed to "MQTT_OPEN_STATE_TOPIC", msg_id=%d", msg_id);
         
         break;
     case MQTT_EVENT_DISCONNECTED:
-        set_telecom_state(TELECOM_STATE_MQTT_DISCONNECTED);
+        set_intercom_state(ENUM_INTERCOM_STATE_MQTT_DISCONNECTED);
         rgb_display(RGB_STATUS_ERROR);
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_DISCONNECTED");
         print_user_property(event->property->user_property);
@@ -88,7 +88,7 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
         
         ESP_LOGI(TAG_MQTT, "MQTT reconnect attempt in %d ms", MQTT_RECONNECT_DELAY_MS);
         vTaskDelay(pdMS_TO_TICKS(MQTT_RECONNECT_DELAY_MS));
-        set_telecom_state(TELECOM_STATE_MQTT_CONNECTING);
+        set_intercom_state(ENUM_INTERCOM_STATE_MQTT_CONNECTING);
         rgb_display(RGB_STATUS_CONNECTING);
         esp_mqtt_client_reconnect(global_mqtt_client);
         
@@ -107,12 +107,12 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
         break;
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
-        // set_telecom_state(TELECOM_STATE_MQTT_SENDING);
+        // set_intercom_state(ENUM_INTERCOM_STATE_MQTT_SENDING);
         print_user_property(event->property->user_property);
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_DATA");
-        // set_telecom_state(TELECOM_STATE_MQTT_RECEIVING);
+        // set_intercom_state(ENUM_INTERCOM_STATE_MQTT_RECEIVING);
         rgb_display(RGB_STATUS_ACTIVE);
         print_user_property(event->property->user_property);
         ESP_LOGI(TAG_MQTT, "payload_format_indicator is %d", event->property->payload_format_indicator);
@@ -122,7 +122,7 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
         ESP_LOGI(TAG_MQTT, "TOPIC=%.*s", event->topic_len, event->topic);
         ESP_LOGI(TAG_MQTT, "DATA=%.*s", event->data_len, event->data);
         
-        // Handle telecom open_state topic
+        // Handle intercom open_state topic
         if (strncmp(event->topic, MQTT_OPEN_STATE_TOPIC, event->topic_len) == 0) {
             if (event->data_len > 0) {
                 if (strncmp(event->data, "true", 4) == 0 || strncmp(event->data, "1", 1) == 0) {
@@ -209,7 +209,7 @@ void task_mqtt5_start(void)
 
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt5_event_handler, NULL);
-    set_telecom_state(TELECOM_STATE_MQTT_CONNECTING);
+    set_intercom_state(ENUM_INTERCOM_STATE_MQTT_CONNECTING);
     esp_mqtt_client_start(client);
 
     global_mqtt_client = client;

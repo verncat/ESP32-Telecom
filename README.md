@@ -1,6 +1,6 @@
-# ESP32 Smart Telecom Project
+# ESP32 Smart Intercom Project
 
-A comprehensive ESP32-based telecom system with WiFi connectivity, MQTT communication, GPIO monitoring, and RGB status indication.
+A comprehensive ESP32-based itercom system with WiFi connectivity, MQTT communication, GPIO monitoring, and RGB status indication.
 
 ## Features
 
@@ -15,7 +15,7 @@ A comprehensive ESP32-based telecom system with WiFi connectivity, MQTT communic
 
 - ESP32 development board
 - RGB LED (Common Cathode)
-- ADC input sensor/potentiometer (Connect to your Telecom Tube LED)
+- ADC input sensor/potentiometer (Connect to your Intercom Tube LED)
 - GPIO output device (Connect to button to open door)
 
 ## Pin Configuration
@@ -37,7 +37,7 @@ A comprehensive ESP32-based telecom system with WiFi connectivity, MQTT communic
 main/
 ├── app_main.c              # Main application entry point
 ├── credentials.example.h    # WiFi and MQTT credentials template
-├── telecom_constants.h     # Hardware pin definitions and constants
+├── intercom_constants.h     # Hardware pin definitions and constants
 ├── color.h                 # Color utility definitions
 └── tasks/
     ├── rgb.h/.c           # RGB LED control and status indication
@@ -51,8 +51,8 @@ main/
 ### 1. Clone and Configure
 
 ```bash
-git clone https://github.com/verncat/ESP32-Telecom.git
-cd ESP32-Telecom
+git clone https://github.com/verncat/ESP32-Intercom.git
+cd ESP32-Intercom
 ```
 
 ### 2. Configure Credentials
@@ -83,13 +83,13 @@ idf.py flash monitor
 
 ### Subscribed Topics
 
-- **`/topic/telecom/open_state`**: Controls GPIO 2
+- **`/topic/intercom/open_state`**: Controls GPIO 2
   - Send `"true"` or `"1"` to set GPIO HIGH
   - Send `"false"` or `"0"` to set GPIO LOW
 
 ### Published Topics
 
-- **`/topic/telecom/dial_value`**: ADC readings when threshold is exceeded
+- **`/topic/intercom/dial_value`**: ADC readings when threshold is exceeded
   - Publishes raw ADC value as string
 
 ## RGB Status Indicators
@@ -117,16 +117,16 @@ The RGB LED provides visual feedback for different system states:
 The system tracks the following states:
 
 ```c
-enum TelecomState {
-    TELECOM_STATE_IDLE,
-    TELECOM_STATE_WIFI_CONNECTING,
-    TELECOM_STATE_WIFI_CONNECTED,
-    TELECOM_STATE_WIFI_DISCONNECTED,
-    TELECOM_STATE_MQTT_CONNECTING,
-    TELECOM_STATE_MQTT_CONNECTED,
-    TELECOM_STATE_MQTT_DISCONNECTED,
-    TELECOM_STATE_MQTT_SENDING,
-    TELECOM_STATE_MQTT_RECEIVING,
+enum IntercomState {
+    ENUM_INTERCOM_STATE_IDLE,
+    ENUM_INTERCOM_STATE_WIFI_CONNECTING,
+    ENUM_INTERCOM_STATE_WIFI_CONNECTED,
+    ENUM_INTERCOM_STATE_WIFI_DISCONNECTED,
+    ENUM_INTERCOM_STATE_MQTT_CONNECTING,
+    ENUM_INTERCOM_STATE_MQTT_CONNECTED,
+    ENUM_INTERCOM_STATE_MQTT_DISCONNECTED,
+    ENUM_INTERCOM_STATE_MQTT_SENDING,
+    ENUM_INTERCOM_STATE_MQTT_RECEIVING,
 };
 ```
 
