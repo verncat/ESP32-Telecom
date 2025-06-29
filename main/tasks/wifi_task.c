@@ -1,8 +1,9 @@
-#include "wifi.h"
+#include "wifi_task.h"
 #include "color.h"
 #include "telecom_constants.h"
 #include "credentials.h"
-#include "rgb.h"
+#include "rgb_state_task.h"
+
 #include "esp_wifi.h"
 #include "esp_log.h"
 

@@ -4,6 +4,7 @@
 
 
 enum TelecomState {
+    TELECOM_STATE_BEGIN,
     TELECOM_STATE_IDLE,
     TELECOM_STATE_WIFI_CONNECTING,
     TELECOM_STATE_WIFI_CONNECTED,
@@ -13,9 +14,13 @@ enum TelecomState {
     TELECOM_STATE_MQTT_DISCONNECTED,
     TELECOM_STATE_MQTT_SENDING,
     TELECOM_STATE_MQTT_RECEIVING,
+    TELECOM_STATE_OTA_UPDATING,
+    TELECOM_STATE_OTA_SUCCESS,
+    TELECOM_STATE_OTA_FAILURE,
+    TELECOM_STATE_END
 };
 
-void rgb_init();
+void rgb_state_init();
 void rgb_display(int8_t r, int8_t g, int8_t b);
-void task_rgb_status_start();
+void task_rgb_state_start();
 void set_telecom_state(int state);

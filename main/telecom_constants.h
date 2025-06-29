@@ -16,3 +16,5 @@
 #define MQTT_DIAL_VALUE_TOPIC "/topic/telecom/dial_value"
 #define MQTT_DIAL_RAW_VALUE_TOPIC "/topic/telecom/dial_raw_value"
 #define MQTT_UPTIME_TOPIC "/topic/telecom/uptime"
+
+#define OTA_FIRMWARE_RECV_TIMEOUT 10000 // 10 seconds

@@ -1,4 +1,4 @@
-#include "rgb.h"
+#include "rgb_state_task.h"
 #include "driver/ledc.h"
 #include "esp_timer.h"
 #include "esp_log.h"
@@ -8,7 +8,7 @@
 
 const char *TAG_RGB = "telecom_state";
 
-void rgb_init() {
+void rgb_state_init() {
 // Configure RGB pins for PWM
     ledc_timer_config_t ledc_timer = {
         .duty_resolution = LEDC_TIMER_8_BIT, // 8-bit resolution (0-255)
@@ -70,7 +70,7 @@ void rgb_display(int8_t r, int8_t g, int8_t b) {
 int work_status = TELECOM_STATE_IDLE;
 
 void set_telecom_state(int state) {
-    if (state < TELECOM_STATE_IDLE || state > TELECOM_STATE_MQTT_RECEIVING) {
+    if (state <= TELECOM_STATE_BEGIN || state >= TELECOM_STATE_END) {
         ESP_LOGE(TAG_RGB, "Invalid telecom state: %d", state);
         return;
     }
@@ -78,7 +78,7 @@ void set_telecom_state(int state) {
     ESP_LOGI(TAG_RGB, "Telecom state changed to: %d", work_status);
 }
 
-void update_rgb_status_task(void *pvParameters) {
+void update_rgb_state_task(void *pvParameters) {
     TickType_t last_update_time = xTaskGetTickCount();
     bool blink_state = false;
     uint8_t blink_counter = 0;
@@ -159,6 +159,31 @@ void update_rgb_status_task(void *pvParameters) {
                 }
                 break;
                 
+            case TELECOM_STATE_OTA_UPDATING:
+                // Blink orange when OTA updating
+                if (blink_state) {
+                    rgb_display(RGB_OTA_UPDATING);
+                } else {
+                    rgb_display(RGB_STATUS_IDLE);
+                }
+                break;
+            case TELECOM_STATE_OTA_SUCCESS:
+                // Blink green when OTA successful
+                if (blink_state) {
+                    rgb_display(RGB_OTA_SUCCESS);
+                } else {
+                    rgb_display(RGB_STATUS_IDLE);
+                }
+
+                break;
+            case TELECOM_STATE_OTA_FAILURE:
+                // Fast blink red when OTA failed
+                if (blink_counter % 2 == 0) {
+                    rgb_display(RGB_OTA_FAILURE);
+                } else {
+                    rgb_display(RGB_STATUS_IDLE);
+                }
+                break;
             default:
                 // Error state - fast blink red
                 if (blink_counter % 2 == 0) { // Faster blinking for error
@@ -174,6 +199,6 @@ void update_rgb_status_task(void *pvParameters) {
     }
 }
 
-void task_rgb_status_start(void) {
-    xTaskCreate(update_rgb_status_task, "rgb_status_task", 2048, NULL, 5, NULL);
+void task_rgb_state_start(void) {
+    xTaskCreate(update_rgb_state_task, "rgb_status_task", 2048, NULL, 5, NULL);
 }

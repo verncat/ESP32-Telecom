@@ -21,3 +21,8 @@
 #define RGB_MQTT_DISCONNECTED       100, 100, 0    // Yellow
 #define RGB_MQTT_SENDING            100, 0, 100    // Magenta
 #define RGB_MQTT_RECEIVING          0, 100, 100    // Cyan
+
+// OTA update specific colors
+#define RGB_OTA_UPDATING            100, 50, 0     // Orange
+#define RGB_OTA_SUCCESS             0, 100, 0      // Green
+#define RGB_OTA_FAILURE             100, 0, 0      // Red

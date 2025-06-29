@@ -1,8 +1,8 @@
-#include "mqtt.h"
+#include "mqtt_task.h"
 #include "color.h"
 #include "telecom_constants.h"
 #include "credentials.h"
-#include "rgb.h"
+#include "rgb_state_task.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
 
@@ -107,12 +107,12 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
         break;
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
-        set_telecom_state(TELECOM_STATE_MQTT_SENDING);
+        // set_telecom_state(TELECOM_STATE_MQTT_SENDING);
         print_user_property(event->property->user_property);
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG_MQTT, "MQTT_EVENT_DATA");
-        set_telecom_state(TELECOM_STATE_MQTT_RECEIVING);
+        // set_telecom_state(TELECOM_STATE_MQTT_RECEIVING);
         rgb_display(RGB_STATUS_ACTIVE);
         print_user_property(event->property->user_property);
         ESP_LOGI(TAG_MQTT, "payload_format_indicator is %d", event->property->payload_format_indicator);
@@ -154,6 +154,10 @@ void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32_t even
 
 EventGroupHandle_t get_mqtt_event_group(void) {
     return mqtt_event_group;
+}
+
+esp_mqtt_client_handle_t get_mqtt_global_client(void) {
+    return global_mqtt_client;
 }
 
 void mqtt5_init() {
