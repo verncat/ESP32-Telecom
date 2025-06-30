@@ -9,6 +9,7 @@ A comprehensive ESP32-based itercom system with WiFi connectivity, MQTT communic
 - **GPIO Monitoring**: ADC monitoring with threshold-based alerts
 - **RGB Status Indicator**: Visual status indication through RGB LED
 - **Remote Control**: GPIO control via MQTT messages
+- **Over-The-Air Updates (OTA)**: Remote firmware updates via HTTP
 - **Modular Architecture**: Clean separation of concerns with task-based design
 
 ## Hardware Requirements
@@ -40,10 +41,11 @@ main/
 ├── intercom_constants.h     # Hardware pin definitions and constants
 ├── color.h                 # Color utility definitions
 └── tasks/
-    ├── rgb.h/.c           # RGB LED control and status indication
-    ├── wifi.h/.c          # WiFi connection management
-    ├── mqtt.h/.c          # MQTT client implementation
-    └── gpio_monitor.h/.c  # ADC monitoring and GPIO control
+    ├── rgb_state_task.h/.c    # RGB LED control and status indication
+    ├── wifi_task.h/.c         # WiFi connection management
+    ├── mqtt_task.h/.c         # MQTT client implementation
+    ├── gpio_monitor_task.h/.c # ADC monitoring and GPIO control
+    └── ota_task.h/.c          # Over-The-Air update functionality
 ```
 
 ## Setup Instructions
@@ -70,6 +72,10 @@ Edit `main/credentials.h`:
 #define MQTT_BROKER_URL "mqtt://your-mqtt-broker.local"
 #define MQTT_USERNAME   "your-mqtt-username"
 #define MQTT_PASSWORD   "your-mqtt-password"
+
+// OTA Configuration
+#define OTA_FIRMWARE_UPG_URL "http://your-server.local:8080/firmware.bin"
+#define OTA_FIRMWARE_RECV_TIMEOUT 10000
 ```
 
 ### 3. Build and Flash
@@ -112,6 +118,11 @@ The RGB LED provides visual feedback for different system states:
 - **Black/Off**: System idle
 - **Red (Blinking)**: Error state
 
+### OTA States
+- **White (Blinking)**: OTA update in progress
+- **Green (Blinking)**: OTA update successful
+- **Red (Fast Blinking)**: OTA update failed
+
 ## System States
 
 The system tracks the following states:
@@ -127,6 +138,9 @@ enum IntercomState {
     ENUM_INTERCOM_STATE_MQTT_DISCONNECTED,
     ENUM_INTERCOM_STATE_MQTT_SENDING,
     ENUM_INTERCOM_STATE_MQTT_RECEIVING,
+    ENUM_INTERCOM_STATE_OTA_UPDATING,
+    ENUM_INTERCOM_STATE_OTA_SUCCESS,
+    ENUM_INTERCOM_STATE_OTA_FAILURE,
 };
 ```
 
@@ -165,9 +179,36 @@ The project uses a modular, task-based architecture:
 3. **WiFi Task**: Handles WiFi connection and reconnection
 4. **MQTT Task**: Manages MQTT connection and message handling
 5. **GPIO Monitor Task**: Monitors ADC input and publishes values
+6. **OTA Task**: Handles over-the-air firmware updates
 
-## License
+## Over-The-Air (OTA) Updates
 
-This project is licensed under the terms of the [LESBIAN License](LICENSE).
+The system supports remote firmware updates via HTTP without requiring physical access to the device.
 
-And [ESP-IDF License](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/COPYRIGHT.html)
+### OTA Configuration
+
+#### Server Setup
+Set up an HTTP server to host firmware files:
+
+```bash
+# Example using Python HTTP server
+cd /path/to/firmware/directory
+python3 -m http.server 8080
+```
+
+#### Firmware Preparation
+1. Build your firmware:
+   ```bash
+   idf.py build
+   ```
+
+2. Copy the firmware binary:
+   ```bash
+   cp build/smart-intercom.bin /path/to/firmware/directory/firmware.bin
+   ```
+
+#### URL Configuration
+Update your `credentials.h` with the firmware URL:
+```c
+#define OTA_FIRMWARE_UPG_URL "http://192.168.1.100:8080/firmware.bin"
+```

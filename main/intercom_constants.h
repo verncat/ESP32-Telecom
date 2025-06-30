@@ -9,7 +9,7 @@
 #define RGB_LEDC_CHANNEL_2 LEDC_CHANNEL_2
 
 #define MONITOR_ADC_CHANNEL ADC1_CHANNEL_6
-#define MONITOR_THRESHOLD 500
+#define MONITOR_THRESHOLD 10
 
 
 #define MQTT_OPEN_STATE_TOPIC "/topic/intercom/open_state"
